@@ -37,4 +37,12 @@ RSpec.describe Triangulate do
     expect(point[0]).to be_within(0.0075).of(-1)
     expect(point[1]).to be_within(0.0075).of(20)
   end
+  it 'calculates sufficiently quickly' do 
+    require 'benchmark'
+    beacon1 = Beacon.new([-20, 10], 21.47)
+    beacon2 = Beacon.new([10, 5], 18.6)
+    beacon3 = Beacon.new([-5,-10], 30.265)
+    triangulate = Triangulate.new(beacon1, beacon2, beacon3, speedy: true)
+    puts Benchmark.measure { 1000.times {Triangulate.new(beacon1, beacon2, beacon3).find_point} }
+  end
 end

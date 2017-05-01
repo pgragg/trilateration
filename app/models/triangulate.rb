@@ -2,22 +2,19 @@ class Triangulate
 	require 'set'
 	attr_accessor :beacons
 
-	def initialize(beacon1, beacon2, beacon3)
+	def initialize(beacon1, beacon2, beacon3, opts={})
 		@beacons = Set.new([beacon1, beacon2, beacon3])
 	end
 
 	def find_point
 		point_permutations_score = {}
-		poo = generate_points
-		poo.each do |point| 
-			score = get_score(point, @beacons)
-			point_permutations_score[score] = point
-		end
-		best_point = point_permutations_score.sort[0][1] # sort by lowest score (lowest distance from expected distance from beacon)
-		mutate(best_point, point_permutations_score.sort[0][0])
+		closest_beacon = @beacons.sort_by {|beacon| beacon.distance }[0]
+		best_point_location = closest_beacon.location
+		mutate(best_point_location)
 	end
 
-	def mutate(point, last_score, mutation_factor = 1.0)
+	def mutate(point, last_score = nil, mutation_factor = 1)
+		last_score ||= get_score(point)
 		return point if mutation_factor <= 0.01
 		left_point = [ point[0] - mutation_factor, point[1] ]
 		right_point = [ point[0] + mutation_factor, point[1] ]
@@ -47,19 +44,6 @@ class Triangulate
 
 	private
 
-	def generate_points
-		beacon = @beacons.sort_by {|beacon| beacon.distance }[0]
-		hypotenuse = beacon.distance
-		points = Set.new
-		(1..360).each do |degree|
-			radians = degree * (Math::PI / 180.0)
-			x = Math.cos(radians) * hypotenuse
-			y = Math.sin(radians) * hypotenuse
-			points << [(beacon.x + x), (beacon.y + y)]
-		end
-		points
-	end
-
 	def distance_between_two_points(point1, point2)
 		Math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 	end
@@ -75,3 +59,28 @@ class Triangulate
 	end
 
 end
+
+# # this method is slow, but accomplishes the same thing as the above. 
+# def generate_points_in_circular_method
+# 	poo = generate_points
+# 	poo.each do |point| 
+# 		score = get_score(point, @beacons)
+# 		point_permutations_score[score] = point
+# 	end
+# 	best_point = point_permutations_score.sort[0] # sort by lowest score (lowest distance from expected distance from beacon)
+# 	score = point_permutations_score.sort[0][0]
+# 	best_point_location = point_permutations_score.sort[0][1]
+# end
+
+# def generate_points
+# 	beacon = @beacons.sort_by {|beacon| beacon.distance }[0]
+# 	hypotenuse = beacon.distance
+# 	points = Set.new
+# 	(1..22).each do |degree|
+# 		radians = degree * 16.363636 *  (Math::PI / 180.0)
+# 		x = Math.cos(radians) * hypotenuse
+# 		y = Math.sin(radians) * hypotenuse
+# 		points << [(beacon.x + x), (beacon.y + y)]
+# 	end
+# 	points
+# end

@@ -62,8 +62,8 @@ end
 
 # # this method is slow, but accomplishes the same thing as the above. 
 # def generate_points_in_circular_method
-# 	poo = generate_points
-# 	poo.each do |point| 
+# 	points = generate_points
+# 	points.each do |point| 
 # 		score = get_score(point, @beacons)
 # 		point_permutations_score[score] = point
 # 	end
